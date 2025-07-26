@@ -1,31 +1,28 @@
+from django.db import models
 
+class Author(models.Model):
+    name = models.CharField(max_length=100)
 
-import os
-import django
+    def __str__(self):
+        return self.name
 
+class Book(models.Model):
+    title = models.CharField(max_length=200)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "LibraryProject.settings")
-django.setup()
+    def __str__(self):
+        return self.title
 
-from relationship_app.models import Author, Book, Library, Librarian
+class Library(models.Model):
+    name = models.CharField(max_length=100)
+    books = models.ManyToManyField(Book)
 
+    def __str__(self):
+        return self.name
 
-def books_by_author(author_name):
-    author = Author.objects.get(name=author_name)
-    return Book.objects.filter(author=author)
+class Librarian(models.Model):
+    name = models.CharField(max_length=100)
+    library = models.OneToOneField(Library, on_delete=models.CASCADE)
 
-def books_in_library(library_name):
-    library = Library.objects.get(name=library_name)
-    return library.books.all()
-
-
-def librarian_for_library(library_name):
-    
-    return Librarian.objects.get(library__name=library_name)
-
-if __name__ == "__main__":
-    
-    print(books_by_author("George Orwell"))
-    print(books_in_library("Main Library"))
-    print(librarian_for_library("Main Library"))
-
+    def __str__(self):
+        return self.name

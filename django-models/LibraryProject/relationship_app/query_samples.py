@@ -1,9 +1,6 @@
-# relationship_app/query_samples.py
-
 import os
 import django
 
-# Set up Django environment
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "LibraryProject.settings")
 django.setup()
 
@@ -21,7 +18,8 @@ def books_in_library(library_name):
 
 # Retrieve the librarian for a library
 def librarian_for_library(library_name):
-    return Librarian.objects.get(library__name=library_name)
+    library = Library.objects.get(name=library_name)
+    return Librarian.objects.get(library=library)
 
 if __name__ == "__main__":
     # Example usage
