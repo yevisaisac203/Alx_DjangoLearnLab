@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import add_book, edit_book, delete_book  # Ensure these views are imported
+from .views import add_book 
+from .views import edit_book
 
 urlpatterns = [
     path('books/add/', add_book, name='add_book'),  # URL for adding a book
