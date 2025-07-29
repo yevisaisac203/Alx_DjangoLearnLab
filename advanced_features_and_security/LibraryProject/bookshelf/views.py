@@ -3,6 +3,16 @@ from django.shortcuts import render
 from .models import Article
 from .models import Book
 from django.views.decorators.csrf import csrf_protect
+from .forms import ExampleForm
+
+@csrf_protect
+def example_form(request):
+    message = ''
+    form = ExampleForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        name = form.cleaned_data['name']
+        message = f"Thank you, {name}!"
+    return render(request, 'bookshelf/form_example.html', {'form': form, 'message': message})
 
 # Example form view (CSRF protected)
 @csrf_protect
