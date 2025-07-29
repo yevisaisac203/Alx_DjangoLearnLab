@@ -2,6 +2,17 @@ from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render
 from .models import Article
 from .models import Book
+from django.views.decorators.csrf import csrf_protect
+
+# Example form view (CSRF protected)
+@csrf_protect
+def example_form(request):
+    message = ''
+    if request.method == "POST":
+        # Safely handle form input (no DB for this task)
+        name = request.POST.get('name', '').strip()
+        message = f"Thank you, {name}!" if name else "Please enter a valid name."
+    return render(request, 'bookshelf/form_example.html', {'message': message})
 
 # View to list all books, protected by can_view permission
 @permission_required('bookshelf.can_view', raise_exception=True)
