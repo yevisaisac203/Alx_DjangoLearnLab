@@ -3,6 +3,7 @@ from .models import Book
 from .serializers import BookSerializer
 from django.urls import path
 from django.http import JsonResponse
+from rest_framework.permissions import IsAuthenticated
 
 def placeholder_view(request):
     return JsonResponse({"message": "This works!"})
@@ -18,3 +19,4 @@ class BookViewSet(viewsets.ModelViewSet):
 class BookList(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated] 
