@@ -1,5 +1,5 @@
 from pathlib import Path
-
+import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-ab1(ioh_vr5_0sl9s(*tzzj^wasz!+2jnrjyhxi+og#ju&mlpm'
@@ -35,7 +35,7 @@ ROOT_URLCONF = 'django_blog.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],   # Global templates folder
+        'DIRS': [os.path.join(BASE_DIR / "templates")],   # Global templates folder
         'APP_DIRS': True,                   # Enables app/templates/app/*.html
         'OPTIONS': {
             'context_processors': [
@@ -78,6 +78,13 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
+import os
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+# For production (collected files)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
