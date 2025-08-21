@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 from .views import UserLogoutView, UserLoginView, register, index, PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView
-from .views import PostDetailView,comment_create,CommentUpdateView,CommentDeleteView,CommentCreateView
+from .views import PostDetailView,comment_create,CommentUpdateView,CommentDeleteView,CommentCreateView,PostsByTagListView, PostSearchListView
 
 
 urlpatterns= [
@@ -27,6 +27,8 @@ urlpatterns= [
     path('post/<int:pk>/comments/new/', CommentCreateView.as_view(), name='comment-create'), # pyright: ignore[reportUndefinedVariable]
     path('comment/<int:pk>/update/', CommentUpdateView.as_view(), name='comment-update'),
     path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment-delete'),
+    path("tags/<str:tag_name>/", PostsByTagListView.as_view(), name="posts-by-tag"),
+    path("search/", PostSearchListView.as_view(), name="post-search"),
 
 
 ]

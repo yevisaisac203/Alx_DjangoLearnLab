@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from .models import Post,Comment
+from .models import Post,Comment,Tag
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth import login
@@ -9,8 +9,55 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from .forms import PostForm
+from django.db.models import Q
+from django.views.generic import ListView
 
 from .forms import RegisterForm, ProfileForm,CommentForm
+
+class PostsByTagListView(ListView):
+    model = Post
+    template_name = "blog/post_list.html"  # reuse your list template
+    context_object_name = "posts"
+    paginate_by = 10
+
+    def get_queryset(self):
+        tag_name = self.kwargs["tag_name"]
+        return (Post.objects.filter(tags__name__iexact=tag_name)
+                .select_related("author")
+                .prefetch_related("tags")
+                .distinct()
+                .order_by("-id"))
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["active_tag"] = self.kwargs["tag_name"]
+        ctx["tag_filter"] = True
+        return ctx
+
+class PostSearchListView(ListView):
+    model = Post
+    template_name = "blog/search_results.html"
+    context_object_name = "posts"
+    paginate_by = 10
+
+    def get_queryset(self):
+        q = self.request.GET.get("q", "").strip()
+        if not q:
+            return Post.objects.none()
+        return (Post.objects.filter(
+                    Q(title__icontains=q) |
+                    Q(content__icontains=q) |
+                    Q(tags__name__icontains=q)
+                )
+                .select_related("author")
+                .prefetch_related("tags")
+                .distinct()
+                .order_by("-id"))
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["q"] = self.request.GET.get("q", "").strip()
+        return ctx
 
 @login_required
 def comment_create(request, pk):

@@ -27,3 +27,21 @@
   </div>
 {% endif %}
 {% endblock %}
+{% extends "blog/base.html" %}
+{% block content %}
+<article>
+  <h1>{{ post.title }}</h1>
+  <p>{{ post.content|linebreaks }}</p>
+
+  {% if post.tags.all %}
+  <p>Tags:
+    {% for tag in post.tags.all %}
+      <a href="{% url 'posts-by-tag' tag.name %}" class="tag">#{{ tag.name }}</a>{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+  </p>
+  {% endif %}
+</article>
+
+<!-- keep your comments area below as-is -->
+
+{% endblock %}

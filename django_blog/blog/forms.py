@@ -3,9 +3,54 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
-from .models import Post
+from .models import Post,Tag
 from .models import Comment
 
+
+class PostForm(forms.ModelForm):
+    # Virtual field for comma-separated tags
+    tags_csv = forms.CharField(
+        required=False,
+        help_text="Comma-separated tags, e.g. django, web, tips",
+        label="Tags"
+    )
+
+    class Meta:
+        model = Post
+        fields = ["title", "content", "tags_csv"] 
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Pre-fill tags_csv when editing
+        if self.instance and self.instance.pk:
+            existing = self.instance.tags.values_list("name", flat=True)
+            self.fields["tags_csv"].initial = ", ".join(existing)
+
+    def clean_tags_csv(self):
+        raw = self.cleaned_data.get("tags_csv", "")
+        # Normalize: split, strip empties, de-duplicate (case-insensitive)
+        pieces = [p.strip() for p in raw.split(",") if p.strip()]
+        seen = set()
+        result = []
+        for p in pieces:
+            key = p.lower()
+            if key not in seen:
+                seen.add(key)
+                result.append(p)
+        return result
+
+    def save(self, commit=True):
+        tags_list = self.cleaned_data.get("tags_csv", [])
+        post = super().save(commit=commit)
+        # Create/find tags, attach to post
+        tag_objs = []
+        for name in tags_list:
+            tag, _ = Tag.objects.get_or_create(name=name)
+            tag_objs.append(tag)
+        # if commit=False above, ensure post has a pk before setting M2M
+        if post.pk:
+            post.tags.set(tag_objs)
+        return post
 class RegisterForm(UserCreationForm):
     """
     Extends Django's signup form to also collect email.
