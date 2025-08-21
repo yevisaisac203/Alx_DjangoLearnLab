@@ -160,6 +160,21 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def get_success_url(self):
         return self.object.post.get_absolute_url()
+    
+class CommentCreateView(CreateView):
+    model = Comment
+    fields = ['content']   # adjust based on your Comment model fields
+    template_name = 'blog/comment_form.html'
 
+    def form_valid(self, form):
+        # Attach the comment to the right post
+        post = get_object_or_404(Post, pk=self.kwargs['pk'])
+        form.instance.post = post
+        form.instance.author = self.request.user   # assuming comment has author
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        # Redirect back to the post detail after creating comment
+        return reverse_lazy('post-detail', kwargs={'pk': self.kwargs['pk']})    
 
 
